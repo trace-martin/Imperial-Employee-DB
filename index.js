@@ -9,7 +9,7 @@ const db = mysql.createConnection({
   database: 'employee_db'
 });
 
-const start = () => {
+const displayMainMenu = () => {
   inquirer
     .prompt([
       {
@@ -17,50 +17,54 @@ const start = () => {
         name: 'begin',
         message: 'Please select an option:',
         choices: [
-          { key: 'v', name: 'View all Employees', value: 'view_employees' },
-          { key: 'a', name: 'Add Employee', value: 'add_employee' },
-          { key: 'r', name: 'Remove Employee', value: 'remove_employee' },
-          { key: 'd', name: 'View all Departments', value: 'view_departments' },
-          { key: 'ad', name: 'Add Department', value: 'add_department' },
-          { key: 'rd', name: 'Remove Department', value: 'remove_department' },
-          { key: 'vm', name: 'View all Managers', value: 'view_managers' },
-          { key: 'am', name: 'Add Manager', value: 'add_manager' },
-          { key: 'vr', name: 'View all Roles', value: 'view_roles' },
-          { key: 'e', name: 'Exit', value: 'exit' },
+          { name: 'View all Employees', value: 'view_employees' },
+          { name: 'Add Employee', value: 'add_employee' },
+          { name: 'Remove Employee', value: 'remove_employee' },
+          { name: 'View all Departments', value: 'view_departments' },
+          { name: 'Add Department', value: 'add_department' },
+          { name: 'Remove Department', value: 'remove_department' },
+          { name: 'View all Managers', value: 'view_managers' },
+          { name: 'Add Manager', value: 'add_manager' },
+          { name: 'View all Roles', value: 'view_roles' },
+          { name: 'Add Role', value: 'add_role' },
+          { name: 'Exit', value: 'exit' },
         ],
       },
     ])
     .then((answers) => {
       const choice = answers.begin;
 
-      switch (choice) {
+    switch (choice) {
         case 'view_employees':
-          allEmployees();
-          break;
+            allEmployees();
+            break;
         case 'add_employee':
-          addEmployee();
-          break;
+            addEmployee();
+            break;
         case 'remove_employee':
-          removeEmployee();
-          break;
+            removeEmployee();
+            break;
         case 'view_departments':
-          allDepartments();
-          break;
+            allDepartments();
+            break;
         case 'add_department':
-          addDepartment();
-          break;
+            addDepartment();
+            break;
         case 'remove_department':
-          removeDepartment();
-          break;
+            removeDepartment();
+            break;
         case 'view_managers':
-          allManagers();
-          break;
+            allManagers();
+            break;
         case 'add_manager':
-          addManager();
-          break;
+            addManager();
+            break;
         case 'view_roles':
-          allRoles();
-          break;
+            allRoles();
+            break;
+        case 'add_role':
+            addRole();
+            break;
         case 'exit':
           console.log('Exiting Employee Records');
           exit();
@@ -75,7 +79,7 @@ db.connect((err) => {
     return;
   }
   console.log('Employee DB connected');
-  start();
+
 });
 
 const allEmployees = () => {
@@ -85,14 +89,40 @@ const allEmployees = () => {
     } else {
       console.table(results);
     }
-    start();
+    displayMainMenu();
   });
 };
 
 const addEmployee = () => {
     inquirer
       .prompt([
-        // Prompt questions here
+        {
+            type: 'input',
+            name: 'firstName',
+            message: "Enter the employee's first name:",
+          },
+          {
+            type: 'input',
+            name: 'lastName',
+            message: "Enter the employee's last name:",
+          },
+          {
+            type: 'list',
+            name: 'role',
+            message: "Please refer to the Imperial Handbook for role ID's:",
+            choices: [
+              { name: 'Emperor', value: '1' },
+              { name: 'Dark Council', value: '2' },
+              { name: 'Sith Militant', value: '3' },
+              { name: 'Sith Legal Team', value: '4' },
+              { name: 'Sith Accounting', value: '5' },
+            ],
+          },
+          {
+            type: 'input',
+            name: 'manager',
+            message: "Enter the employee's manager:",
+          },
       ])
       .then((answers) => {
         const { firstName, lastName, role, manager } = answers;
@@ -113,11 +143,11 @@ const addEmployee = () => {
         });
       })
       .then(() => {
-        displayMainMenu(); // After adding an employee, display the main menu again
+        displayMainMenu();
       })
       .catch((err) => {
         console.log('Error:', err);
-        displayMainMenu(); // Handle error by displaying the main menu again
+        displayMainMenu();
       });
   };
   
@@ -130,6 +160,70 @@ const addEmployee = () => {
     displayMainMenu(); // Start the program by displaying the main menu
   });
   
+  const allRoles = () => {
+    db.query('SELECT * FROM role', (err, results) => {
+      if (err) {
+        console.error('Error retrieving roles: ', err);
+      } else {
+        console.table(results);
+      }
+      displayMainMenu();
+    });
+  };
+
+  const addRole = () => {
+    inquirer
+      .prompt([
+        {
+            type: 'input',
+            name: 'roleName',
+            message: "What will the name of the role be:",
+          },
+          {
+            type: 'input',
+            name: 'salary',
+            message: "What will the salary for the role be:",
+          },
+          {
+            type: 'list',
+            name: 'depRole',
+            message: "Which department will the role be associated with:",
+            choices: [
+                { name: 'Imperial Leadership', value: '1' },
+                { name: 'Imperial Legal Team', value: '2' },
+                { name: 'Imperial Blaster Fodder', value: '3' },
+                { name: 'Imperial Finance', value: '4' }
+            ],
+          },
+      ])
+      .then((answers) => {
+        const { roleName, salary, depRole} = answers;
+        return new Promise((resolve, reject) => {
+          db.query(
+            'INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)',
+            [roleName, salary, depRole],
+            (err) => {
+              if (err) {
+                console.log('Error adding role:', err);
+                reject();
+              } else {
+                console.log('Role added successfully!');
+                resolve();
+              }
+            }
+          );
+        });
+      })
+      .then(() => {
+        displayMainMenu();
+      })
+      .catch((err) => {
+        console.log('Error:', err);
+        displayMainMenu();
+      });
+  };
+
+
   const exit = () => {
     db.end();
     process.exit();
