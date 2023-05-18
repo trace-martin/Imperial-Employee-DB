@@ -1,4 +1,4 @@
-INSERT INTO department (department_name)
+INSERT INTO departments (department_name)
 VALUES  ("Imperial Leadership"),
         ("Imperial Legal Team"),
         ("Imperial Blaster Fodder"),
