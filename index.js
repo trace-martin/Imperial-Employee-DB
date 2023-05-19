@@ -274,56 +274,115 @@ const addEmployee = () => {
 };
 // --------END OF EMPLOYEE FUNCTIONS--------
 
-// --------START OF UPDATE FUNCTION--------
-const updateRole = () => {
-    inquirer
-        .prompt ([
-            {
-                type: 'list',
-                name: 'employee',
-                message: 'Please select the employee you wish to update:',
-                choices: getEmployeeChoices(),
-            },
-            {
-                type: 'list',
-                name: 'newRole',
-                message: 'Please select the new role for the employee:',
-                choices: getRoleChoices(),
-            },
-        ])
-        .then((answer) => {
-            const { employee, newRole } = answers;
+// --------START OF UPDATE ROLE--------
+const updateRole = async () => {
+    try {
+      const employeeChoices = await getEmployeeChoices();
+      const roleChoices = await getRoleChoices();
+  
+      console.log(consoleTable.getTable(await getEmployees()));
+  
+      const choices = [
+        ...employeeChoices,
+        { name: 'Return to Main Menu', value: 'return' }
+      ];
 
-            return new Promise((resolve, reject) => {
-                db.query(
-                    'UPDATE employees SET role_id = ? WHERE id = ?',
-                    [newRole, employee],
-                    (err) => {
-                        if (err) {
-                            console.log("Error updating the employee's role:" , err);
-                            reject();
-                        } else {
-                            console.log("Employee's role has been updated!");
-                            resolve();
-                        }
-                    }
-                );
-            })
-        })
-        .then(() => {
-            displayMainMenu();
-        })
-        .catch((err) => {
-            console.log('Error', err);
-            displayMainMenu();
-        });
+      const answers = await inquirer.prompt([
+        {
+          type: 'list',
+          name: 'employee',
+          message: 'Please select the employee you wish to update:',
+          choices: choices
+        }
+    ]);
+    
+    if (answers.employee == 'return'){
+        displayMainMenu();
+        return;
+    }
+
+    const { employee } = answers;
+
+    const roleAnswers = await inquirer.prompt([
+        {
+          type: 'list',
+          name: 'newRole',
+          message: 'Please select the new role for the employee:',
+          choices: roleChoices,
+        },
+      ]);
+  
+  
+      const { newRole } = roleAnswers;
+  
+      await updateEmployeeRole(employee, newRole);
+  
+      console.log("Employee's role has been updated!");
+      displayMainMenu();
+    } catch (error) {
+      console.log('Error:', error);
+      displayMainMenu();
+    }
 };
 
 
-
+const getEmployeeChoices = () => {
+    return new Promise((resolve, reject) => {
+      db.query('SELECT id, CONCAT(first_name, " ", last_name) AS name FROM employees', (err, results) => {
+        if (err) {
+          reject(err);
+        } else {
+          const choices = results.map((employee) => ({
+            value: employee.id,
+            name: employee.name,
+          }));
+          resolve(choices);
+        }
+      });
+    });
+};
+  
 const getRoleChoices = () => {
-
+    return new Promise((resolve, reject) => {
+      db.query('SELECT id, title FROM role', (err, results) => {
+        if (err) {
+          reject(err);
+        } else {
+          const choices = results.map((role) => ({
+            value: role.id,
+            name: role.title,
+          }));
+          resolve(choices);
+        }
+      });
+    });
 };
+  
+const getEmployees = () => {
+    return new Promise((resolve, reject) => {
+      db.query('SELECT * FROM employees', (err, results) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(results);
+        }
+      });
+    });
+};
+  
+const updateEmployeeRole = (employeeId, newRoleId) => {
+    return new Promise((resolve, reject) => {
+      db.query('UPDATE employees SET role_id = ? WHERE id = ?', [newRoleId, employeeId], (err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      });
+    });
+};
+// --------END OF UPDATE ROLE--------
+
 
 // --------CONNECTION TO DB--------
 db.connect((err) => {
@@ -335,6 +394,10 @@ db.connect((err) => {
     displayMainMenu();
 });
 
+
+const back = () => {
+    displayMainMenu()
+};
 // EXIT FUNC
 const exit = () => {
 db.end();
