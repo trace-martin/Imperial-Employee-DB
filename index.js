@@ -136,7 +136,16 @@ const addDepartment = () => {
 // --------START OF ROLES--------
 // VIEW ALL ROLES
 const allRoles = () => {
-    db.query('SELECT * FROM role', (err, results) => {
+  const query = `
+  SELECT
+    roles.title AS job_title,
+    roles.id AS role_id,
+    departments.department_name AS department,
+    roles.salary
+  FROM roles
+  JOIN departments ON roles.department_id = departments.id`;
+    
+    db.query(query, (err, results) => {
         if (err) {
         console.error('Error retrieving roles: ', err);
         } else {
@@ -202,14 +211,28 @@ const addRole = () => {
 // --------Start of Employee Functions--------
 // view all employees 
 const allEmployees = () => {
-  db.query('SELECT * FROM employees', (err, results) => {
-    if (err) {
-      console.error('Error retrieving employees: ', err);
-    } else {
-      console.table(results);
-    }
-    displayMainMenu();
-  });
+  const query = `
+  SELECT 
+    employees.id,
+    employees.first_name,
+    employees.last_name,
+    roles.title,
+    departments.department_name AS department,
+    roles.salary,
+    CONCAT(manager.first_name, ' ', manager.last_name) AS manager 
+  FROM employees
+  JOIN roles ON employees.role_id = roles.id
+  JOIN departments ON roles.department_id = departments.id
+  LEFT JOIN employees AS manager ON employees.manager_id = manager.id`;
+
+    db.query(query, (err, results) => {
+      if (err) {
+        console.error('Error retrieving employees from DB:', err);
+      } else {
+        console.table(results)
+      }
+      displayMainMenu();
+    });
 };
 
 // --------PROMPTS FOR NEW EMPLOYEE--------
@@ -344,7 +367,7 @@ const getEmployeeChoices = () => {
   
 const getRoleChoices = () => {
     return new Promise((resolve, reject) => {
-      db.query('SELECT id, title FROM role', (err, results) => {
+      db.query('SELECT id, title FROM roles', (err, results) => {
         if (err) {
           reject(err);
         } else {

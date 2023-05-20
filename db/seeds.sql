@@ -4,7 +4,7 @@ VALUES  ("Imperial Leadership"),
         ("Imperial Blaster Fodder"),
         ("Imperial Finance");
        
-INSERT INTO role (title, salary, department_id)
+INSERT INTO roles (title, salary, department_id)
 VALUES ("Emperor", 1000000000, 1),
        ("Dark Council", 5000000, 1),
        ("Sith Militant", 750, 3),
@@ -12,7 +12,7 @@ VALUES ("Emperor", 1000000000, 1),
        ("Sith Accounting", 70000, 4);
 
 INSERT INTO employees (first_name, last_name, role_id, manager_id)
-VALUES ("Darth", "Sidious", 1, 1),
+VALUES ("Darth", "Sidious", 1, NULL),
        ("Darth", "Vadar", 2, 1),
        ("Mass", "Amedda", 2, 1),
        ("Sate", "Pestage", 2, 1),
