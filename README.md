@@ -10,13 +10,14 @@
   Delete functionality will be implemented in the future.
 
   # ScreenCastify video link:
-  
+
   [VideoPreview](https://drive.google.com/file/d/1Xzh8Q3CROEa3EJDvChibCSG6UwrBSRHR/view)
 
   ## Table of Contents:
 
   - [Installation](#installation)
   - [Technology](#technology)
+  - [Preview](#preview)
   - [License](#license)
   - [Contributing](#contributing)
   - [Questions](#questions)
@@ -48,6 +49,11 @@
   * dotenv (not used but can be added)
   * console.table
   
+
+  ## Preview:
+
+  ![terminalBegin](https://github.com/trace-martin/Imperial-Employee-DB/assets/123417800/2ba91ff7-93fa-4f01-a76f-724aef3278e3)
+  ![tables](https://github.com/trace-martin/Imperial-Employee-DB/assets/123417800/cddc6b3d-50a3-4d89-9ea7-46f77a9c00a2)
 
   ## License:
 
